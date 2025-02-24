@@ -43,6 +43,12 @@ class Counter with ChangeNotifier {
     notifyListeners();
   }
 
+  // Set the age directly from the slider
+  void setAge(int newAge) {
+    value = newAge;
+    notifyListeners();
+  }
+
   // Determine the milestone based on the current counter value
   String get milestoneMessage {
     if (value <= 12) {
@@ -65,11 +71,31 @@ class Counter with ChangeNotifier {
     } else if (value <= 19) {
       return Colors.lightGreen;
     } else if (value <= 30) {
-      return Color(0xFFFFF8C2);
+      return Color(0xFFFFF8C2);  // Light yellow defined with hex value
     } else if (value <= 50) {
       return Colors.orange;
     } else {
       return Colors.grey[300]!;
+    }
+  }
+
+  // Determine the color for the progress bar based on the age range
+  Color get progressBarColor {
+    if (value <= 33) {
+      return Colors.green;
+    } else if (value <= 67) {
+      return Colors.yellow;
+    } else {
+      return Colors.red;
+    }
+  }
+
+  // Calculate progress for the progress bar
+  double get progressValue {
+    if (value <= 99) {
+      return value / 99; // Normalize the age to the range 0-1 for the progress bar
+    } else {
+      return 1.0;
     }
   }
 }
@@ -114,6 +140,32 @@ class MyHomePage extends StatelessWidget {
                 Text(
                   'Age: ${counter.value}', // Show current age (counter value)
                   style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 20),
+                
+                // Slider to adjust age
+                Slider(
+                  value: counter.value.toDouble(),
+                  min: 0,
+                  max: 99,
+                  divisions: 99,
+                  label: '${counter.value}',
+                  onChanged: (double newValue) {
+                    counter.setAge(newValue.toInt()); // Update age based on slider
+                  },
+                ),
+                const SizedBox(height: 20),
+                
+                // Progress bar with color changes based on the range
+                LinearProgressIndicator(
+                  value: counter.progressValue,
+                  backgroundColor: Colors.grey[300],
+                  valueColor: AlwaysStoppedAnimation(counter.progressBarColor),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Progress: ${((counter.progressValue) * 100).toStringAsFixed(0)}%',
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
               ],
             ),
